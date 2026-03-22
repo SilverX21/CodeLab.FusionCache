@@ -24,7 +24,7 @@ public class TodoConfiguration : IEntityTypeConfiguration<Todo>
             .HasDefaultValue(false);
 
         builder.Property(x => x.CreatedAt)
-            .HasDefaultValue(DateTime.UtcNow);
+            .HasDefaultValueSql("now()");
 
         builder.HasIndex(x => x.Id)
             .IsUnique();

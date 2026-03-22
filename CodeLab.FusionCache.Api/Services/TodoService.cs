@@ -1,4 +1,5 @@
 ﻿using CodeLab.FusionCache.Api.Contracts;
+using CodeLab.FusionCache.Api.Helpers;
 using CodeLab.FusionCache.Api.Repository;
 using ZiggyCreatures.Caching.Fusion;
 
@@ -24,6 +25,24 @@ public class TodoService(
         }
     }
 
+    public async Task<bool> DeleteTodoAsync(Guid id, CancellationToken cancellationToken)
+    {
+        if (id == Guid.Empty)
+        {
+            return false;
+        }
+
+        var result = await todoRepository.DeleteTodoAsync(id, cancellationToken);
+
+        if (result)
+        {
+            await cache.RemoveAsync(CacheKeysHelper.GetTodoKey(id), token: cancellationToken);
+            await cache.RemoveAsync("TodosList", token: cancellationToken);
+        }
+
+        return result;
+    }
+
     public async Task<List<TodoDto>> GetAllAsync(CancellationToken cancellationToken)
     {
         try
@@ -44,5 +63,23 @@ public class TodoService(
             logger.LogError(ex, "An error occurred while retrieving all todos.");
             return null;
         }
+    }
+
+    public async Task<TodoDto> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        if (id == Guid.Empty)
+        {
+            return null;
+        }
+
+        var result = await cache.GetOrSetAsync(
+            CacheKeysHelper.GetTodoKey(id),
+            async token =>
+            {
+                var response = await todoRepository.GetByIdAsync(id, token);
+                return response;
+            });
+
+        return result;
     }
 }

@@ -17,8 +17,8 @@ builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 
 builder.Services.AddOpenApi();
-builder.AddNpgsqlDataSource("fusiondb");
-builder.Services.AddNpgsql<AppDbContext>("fusiondb");
+var connectionString = builder.Configuration.GetConnectionString("fusiondb");
+builder.AddNpgsqlDbContext<AppDbContext>("fusiondb");
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
@@ -46,9 +46,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 
-    var scope = app.Services.CreateScope();
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate();
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
 }
 
 app.UseExceptionHandler();

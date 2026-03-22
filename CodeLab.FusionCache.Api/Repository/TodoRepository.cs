@@ -31,6 +31,22 @@ public class TodoRepository(AppDbContext dbContext, ILogger<TodoRepository> logg
         return new TodoDto(entity.Id, entity.Title, entity.Description, entity.IsCompleted);
     }
 
+    public async Task<bool> DeleteTodoAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var entity = await dbContext.Todos.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+        if (entity is null)
+        {
+            logger.LogWarning("Todo item with id {Id} not found for deletion", id);
+            return false;
+        }
+
+        dbContext.Todos.Remove(entity);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return true;
+    }
+
     public async Task<List<TodoDto>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await dbContext.Todos
