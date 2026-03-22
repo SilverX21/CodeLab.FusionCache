@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Project Path="CodeLab.FusionCache.Api/CodeLab.FusionCache.Api.csproj" />
+  <Project Path="CodeLab.FusionCache.AppHost/CodeLab.FusionCache.AppHost.csproj" />
+  <Project Path="CodeLab.FusionCache.ServiceDefaults/CodeLab.FusionCache.ServiceDefaults.csproj" />
+</Solution>
